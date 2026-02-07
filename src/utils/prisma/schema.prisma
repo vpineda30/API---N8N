@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id          String @id @default(uuid()) @unique
+  name        String
+  description String
+  category    String
+  quantity    Int
+  price       Float
+  createdAt   DateTime @default(now())
+
+  @@map("products")
+}
