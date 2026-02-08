@@ -7,8 +7,8 @@ export class GetProductsController {
 
     public static builder(): GetProductsController {
         const repository = new ProductRepository();
-        const getProductsService = new GetProductsService(repository);
-        return new GetProductsController(getProductsService);
+        const service = new GetProductsService(repository);
+        return new GetProductsController(service);
     }
 
     public async handle(request: Request, response: Response) {

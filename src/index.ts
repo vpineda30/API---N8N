@@ -3,6 +3,7 @@ import { GetProductsController } from "./controllers/products/get-products.contr
 import { CreateProductController } from "./controllers/products/create-product.controller.js";
 import { N8NController } from "./integrations/n8n/controllers/n8n.controller.js";
 import "dotenv/config";
+import { UpdateProductController } from "./controllers/products/update-product.controller.js";
 
 const app = Express();
 const port = process.env.PORT || 3304;
@@ -20,6 +21,12 @@ app.post("/create-product", async (request, response) => {
     return await controller.handle(request, response);
 });
 
+app.put("/update-product/:id", async (request, response) => {
+    const controller = UpdateProductController.builder();
+    return await controller.handler(request, response);
+});
+
+// N8N integration Endpoints
 app.get("/send-products-n8n", async (request, response) => {
     const controller = N8NController.builder();
     return await controller.handler(request, response);
