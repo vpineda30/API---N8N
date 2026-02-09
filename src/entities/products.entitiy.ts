@@ -12,30 +12,30 @@ export interface IProductProps {
 export class Product {
     constructor(private readonly props: IProductProps) {}
 
-    public static create(name: string, description: string, category: string, price: number) {
+    public static create(name: string, description: string, category: string, quantity: number, price: number) {
         return new Product({
             id: randomUUID(),
             name,
             description,
             category,
-            price,
             quantity: 0,
+            price,
         });
+    }
+
+    public static update(id: string, name: string, description: string, category: string, quantity: number, price: number) {
+        return new Product({
+            id,
+            name,
+            description,
+            category,
+            quantity,
+            price,
+        })
     }
 
     public static addQuantity(product: Product, quantity: number) {
         product.props.quantity = (product.props.quantity || 0) + quantity;
-    }
-
-    public static decreaseQuantity(product: Product, quantity: number) {
-        if ((product.props.quantity || 0) < quantity) {
-            throw new Error("Not enough quantity in stock");
-        }
-        product.props.quantity = (product.props.quantity || 0) - quantity;
-    }
-
-    public static sellProduct(product: Product, quantity: number) {
-        this.decreaseQuantity(product, quantity);
     }
     
     public get id() {

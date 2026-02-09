@@ -8,13 +8,41 @@ datasource db {
 }
 
 model Product {
-  id          String @id @default(uuid()) @unique
+  id          String   @id @default(uuid()) @unique
+  name        String
+  description String
+  category    String
+  quantity    Int      
+  price       Decimal
+  createdAt   DateTime @default(now())
+
+  salesItems  SaleItem[]
+
+  @@map("products")
+}
+
+model Sale {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  total     Decimal @default(0)
+
+  items     SaleItem[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id          String @id @default(uuid())
+  saleId      String
+  productId   String
   name        String
   description String
   category    String
   quantity    Int
-  price       Float
-  createdAt   DateTime @default(now())
+  priceAtSale Decimal
 
-  @@map("products")
+  sale      Sale    @relation(fields: [saleId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
 }

@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "sqlite",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n}\n\nmodel Product {\n  id          String   @id @default(uuid())\n  name        String\n  description String\n  category    String\n  quantity    Int\n  price       Float\n  createdAt   DateTime @default(now())\n\n  @@map(\"products\")\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n}\n\nmodel Product {\n  id          String   @id @unique @default(uuid())\n  name        String\n  description String\n  category    String\n  quantity    Int\n  price       Decimal\n  createdAt   DateTime @default(now())\n\n  salesItems SaleItem[]\n\n  @@map(\"products\")\n}\n\nmodel Sale {\n  id        String   @id @default(uuid())\n  createdAt DateTime @default(now())\n  total     Decimal  @default(0)\n\n  items SaleItem[]\n\n  @@map(\"sales\")\n}\n\nmodel SaleItem {\n  id          String  @id @default(uuid())\n  saleId      String\n  productId   String\n  name        String\n  description String\n  category    String\n  quantity    Int\n  priceAtSale Decimal\n\n  sale    Sale    @relation(fields: [saleId], references: [id])\n  product Product @relation(fields: [productId], references: [id])\n\n  @@map(\"sale_items\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"products\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"salesItems\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"ProductToSaleItem\"}],\"dbName\":\"products\"},\"Sale\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"total\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"SaleToSaleItem\"}],\"dbName\":\"sales\"},\"SaleItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"saleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"priceAtSale\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"sale\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToSaleItem\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToSaleItem\"}],\"dbName\":\"sale_items\"}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -185,6 +185,26 @@ export interface PrismaClient<
     * ```
     */
   get product(): Prisma.ProductDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.sale`: Exposes CRUD operations for the **Sale** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Sales
+    * const sales = await prisma.sale.findMany()
+    * ```
+    */
+  get sale(): Prisma.SaleDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.saleItem`: Exposes CRUD operations for the **SaleItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SaleItems
+    * const saleItems = await prisma.saleItem.findMany()
+    * ```
+    */
+  get saleItem(): Prisma.SaleItemDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

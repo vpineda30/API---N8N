@@ -2,16 +2,18 @@ import { Product } from "../../entities/products.entitiy.js";
 import { IProductGateway } from "../../gateways/product.gateway.js";
 import { prisma } from "../../utils/prisma/prisma.js";
 
-export class ProductRepository implements IProductGateway {
+export class SqliteProductRepository implements IProductGateway {
     public async createProduct(data: Product): Promise<Product> {
-        const createProduct = await prisma.product.create({ data: {
-            id: data.id,
-            name: data.name,
-            description: data.description,
-            category: data.category,
-            quantity: data.quantity,
-            price: data.price,
-        } });
+        const createProduct = await prisma.product.create({
+            data: {
+                id: data.id,
+                name: data.name,
+                description: data.description,
+                category: data.category,
+                quantity: data.quantity,
+                price: data.price,
+            }
+        });
 
         return new Product({
             id: createProduct.id,
@@ -19,7 +21,7 @@ export class ProductRepository implements IProductGateway {
             description: createProduct.description,
             category: createProduct.category,
             quantity: createProduct.quantity,
-            price: createProduct.price,
+            price: createProduct.price.toNumber(),
         });
     }
 
@@ -31,7 +33,7 @@ export class ProductRepository implements IProductGateway {
             description: p.description,
             category: p.category,
             quantity: p.quantity,
-            price: p.price,
+            price: p.price.toNumber(),
         }));
     }
 
@@ -46,7 +48,7 @@ export class ProductRepository implements IProductGateway {
             description: product.description,
             category: product.category,
             quantity: product.quantity,
-            price: product.price,
+            price: product.price.toNumber(),
         });
     }
 
@@ -62,8 +64,39 @@ export class ProductRepository implements IProductGateway {
             }
         });
     }
-    
+
     public async deleteProduct(id: string): Promise<void> {
         await prisma.product.delete({ where: { id } });
     }
+
+    public async sellProduct(productId: string, quantity: number): Promise<void> {
+        // transaction usado pois a venda pode quebrar no meio
+        await prisma.$transaction(async (tx) => {
+            const product = await tx.product.findUnique({ where: { id: productId } });
+            if (!product) throw new Error("Product not found");
+            if (product.quantity < quantity) throw new Error("Product out of stock");
+
+            const sale = await tx.sale.create({
+                data: {
+                    total: 0
+                }
+            })
+
+            const saleItem = await tx.saleItem.create({
+                data: {
+                    saleId: sale.id,
+                    productId: product.id,
+                    name: product.name,
+                    description: product.description,
+                    category: product.category,
+                    quantity,
+                    priceAtSale: product.price
+                }
+            })
+
+            await tx.product.update({ where: { id: product.id }, data: { quantity: { decrement: quantity } } })
+            const total = product.price.mul(quantity);
+            await tx.sale.update({ where: { id: sale.id }, data: { total } })
+        });
+    };
 }

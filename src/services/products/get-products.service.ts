@@ -1,7 +1,6 @@
 import { Product } from "../../entities/products.entitiy.js";
 import { IProductGateway } from "../../gateways/product.gateway.js";
 import { IServiceDto } from "../../interfaces/dtos/service.dto.js";
-import { ProductRepository } from "../../repositories/products/sqlite_product.repository.js";
 
 type getProductsInputDto = void;
 

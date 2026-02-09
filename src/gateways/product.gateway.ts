@@ -6,4 +6,5 @@ export interface IProductGateway {
     getProductById(id: string): Promise<Product | null>
     updateProduct(id: string, data: Product): Promise<void>
     deleteProduct(id: string): Promise<void>
+    sellProduct(productId: string, quantity: number): Promise<void>
 }

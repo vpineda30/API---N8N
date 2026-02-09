@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
 import { GetProductsService } from "../../services/products/get-products.service.js";
-import { ProductRepository } from "../../repositories/products/sqlite_product.repository.js";
+import { SqliteProductRepository } from "../../repositories/products/sqlite-product.repository.js";
 
 export class GetProductsController {
     constructor(private readonly getProductsService: GetProductsService) { }
 
     public static builder(): GetProductsController {
-        const repository = new ProductRepository();
+        const repository = new SqliteProductRepository();
         const service = new GetProductsService(repository);
         return new GetProductsController(service);
     }
 
-    public async handle(request: Request, response: Response) {
+    public async handler(request: Request, response: Response) {
         try {
             const products = await this.getProductsService.execute();
             return response.status(200).json(products);

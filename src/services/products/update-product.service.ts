@@ -17,28 +17,32 @@ type updateProductOutputDto = {
   id: string;
   name: string;
   description: string;
+  category: string;
+  quantity: number;
   price: number;
 };
 
 export class UpdateProductService implements IServiceDto<updateProductInputDto, updateProductOutputDto> {
     constructor(private readonly productsGateway: IProductGateway) {}
 
-    public async execute({id, data }: updateProductInputDto) {
+    public async execute({ id, data }: updateProductInputDto): Promise<updateProductOutputDto> {
         const product = await this.productsGateway.getProductById(id)
 
         if (!product) {
             throw new Error("Product not found");
         }
 
-        const updatedProduct = Product.create(
-            data.name || product.name,
-            data.description || product.description,
-            data.category || product.category,
-            data.price || product.price
+        const buildProduct = Product.update(
+            product.id,
+            data.name ?? product.name,
+            data.description ?? product.description,
+            data.category ?? product.category,
+            data.quantity ?? product.quantity,
+            data.price ?? product.price
         );
         
-        await this.productsGateway.updateProduct(id, updatedProduct);
-        return this.output(updatedProduct);
+        await this.productsGateway.updateProduct(id, buildProduct);
+        return this.output(buildProduct);
     }
 
     private output(data: Product): updateProductOutputDto {
@@ -46,6 +50,8 @@ export class UpdateProductService implements IServiceDto<updateProductInputDto, 
             id: data.id,
             name: data.name,
             description: data.description,
+            category: data.category,
+            quantity: data.quantity,
             price: data.price,
         }
     }
