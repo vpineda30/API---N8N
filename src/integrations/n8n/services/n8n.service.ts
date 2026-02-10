@@ -1,13 +1,13 @@
 import axios from "axios";
-import { IProductGateway } from "../../../gateways/product.gateway.js";
 import { IN8NGateway } from "../gateways/n8n.gateway.js";
+import { ISalesGateway } from "../../../gateways/sales.gateway.js";
 
 export class N8NService implements IN8NGateway {
-    constructor(private readonly productsGateway: IProductGateway) {}
+    constructor(private readonly saleGateway: ISalesGateway) {}
 
     public async sendProductsForN8N(): Promise<any> {
-        const products = await this.productsGateway.getProducts();
-        const response = await axios.post("http://localhost:5678/webhook-test/9313b805-ad11-4a48-8421-e11e8c7bae3e", products);   
+        const products = await this.saleGateway.getSalesDetails()
+        const response = await axios.post("https://vopineda.app.n8n.cloud/webhook-test/2ee3b8d9-5ff3-4486-aa65-47035dd10cab", products);   
         return response.data;
     }
 }

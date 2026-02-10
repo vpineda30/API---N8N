@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { N8NService } from "../services/n8n.service.js";
 import { SqliteProductRepository } from "../../../repositories/products/sqlite-product.repository.js";
+import { SqliteSalesRepository } from "../../../repositories/sales/sqlite-sales.repository.js";
 
 export class N8NController {
     constructor(private readonly n8nService: N8NService) { }
 
     public static builder(): N8NController {
-        const repository = new SqliteProductRepository();
+        const repository = new SqliteSalesRepository();
         const service = new N8NService(repository);
         return new N8NController(service);
     }

@@ -52,7 +52,7 @@ app.get("/sales/total-of-sales", async (request, response) => {
 });
 
 // N8N integration Endpoints
-app.get("/n8n/send-products", async (request, response) => {
+app.get("/n8n/get-sales-report", async (request, response) => {
     const controller = N8NController.builder();
     return await controller.handler(request, response);
 });
